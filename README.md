@@ -1,164 +1,76 @@
-# Machine Learning: Advanced
+# Предсказание дня недели: модели и ансамбли
 
-Summary: Today we will help you master advanced tasks involved in machine learning in Python.
+Учебный ML-проект. По пользователю, лабораторной работе, числу попыток и часу отправки модель определяет день недели. В проекте пройден путь от экспериментов с регуляризацией до сравнения ансамблей и оформления обработки данных в классы и `Pipeline`.
 
-💡 [Tap here](https://new.oprosso.net/p/4cb31ec3f47a4596bc758ea1861fb624) **to leave your feedback on the project**. It's anonymous and will help our team make your educational experience better. We recommend completing the survey immediately after the project.
+**Стек:** Python · pandas · NumPy · scikit-learn · Jupyter · tqdm · joblib.
 
-## Contents
+## Данные и задача
 
-1. [Chapter I](#chapter-i) \
-    1.1. [Foreword](#foreword)
-2. [Chapter II](#chapter-ii) \
-    2.1. [Instructions](#instructions)
-3. [Chapter III](#chapter-iii) \
-    3.1. [Specific instructions for the day](#specific-instructions-for-the-day)
-4. [Chapter IV](#chapter-iv) \
-    4.1. [Exercise 00: Regularization](#exercise-00-regularization)
-5. [Chapter V](#chapter-v) \
-    5.1. [Exercise 01: Gridsearch](#exercise-01-gridsearch)
-6. [Chapter VI](#chapter-vi) \
-    6.1. [Exercise 02: Metrics](#exercise-02-metrics)
-7. [Chapter VII](#chapter-vii) \
-    7.1. [Exercise 03: Ensembles](#exercise-03-ensembles)
-8. [Chapter VIII](#chapter-viii) \
-    8.1. [Exercise 04: Pipelines and OOP](#exercise-04-pipelines-and-oop)
-    
-   
-## Chapter I
+В [исходном датасете](src/data/checker_submits.csv) — **1 686 отправок, 30 пользователей и 11 лабораторных работ**. Целевая переменная — один из семи дней недели: от понедельника (`0`) до воскресенья (`6`).
 
-### Foreword
+- `uid`, `labname` — категориальные признаки, преобразованные через One-Hot Encoding.
+- `numTrials` — число попыток отправки задания.
+- `hour` — час, извлечённый из `timestamp`.
+- `dayofweek` — целевая переменная, также извлечённая из времени отправки.
 
-There is real data science, and then there is data science for competitions. The difference is similar to that between a porter and a weightlifter. A porter may perform poorly in heavy lifting competitions, and a weightlifter may underperform in a real job. The same is true for data science. In companies, you need a broader skill set, including soft skills, for example. You need to understand the business and focus on profit or the organization's other goals. In competitions, however, you simply need to excel at achieving the target metrics. You could create an extremely advanced machine learning model that outperforms your next competitor's model by 0.00001, and no one would care how long it takes to make predictions, how interpretable the model is, or how many computational resources it requires. In business, of course, all of these criteria matter.
+После извлечения признаков `timestamp` удаляется, а целевая колонка отделяется от матрицы признаков. В `ex00` используется подготовленная версия данных с масштабированными числовыми признаками, в остальных экспериментах — без масштабирования.
 
-Nevertheless, you can use competitions to improve your skills. The most popular platform is [Kaggle](https://www.kaggle.com/). There are many public datasets and competitions. You can try to win a prize, but you will most likely only earn experience, which is not bad at all. This can be useful for building your portfolio. You can organize a team and learn from each other. You can also improve your collaboration skills. The platform allows you to pursue either the machine learning or data exploration track, depending on your preference.
+## Что реализовано
 
-Think of it as a great tool for continued growth in the field, but keep in mind that real life requires more than building machine learning models and optimizing hyperparameters.
+| Этап | Блокнот | Содержание |
+|---|---|---|
+| Регуляризация | [00_regularization.ipynb](src/ex00/00_regularization.ipynb) | Сравнение вариантов регуляризации логистической регрессии, параметра `C` у SVM и ограничений сложности деревьев и леса. Стратифицированная кросс-валидация. |
+| Подбор параметров | [01_gridsearch.ipynb](src/ex01/01_gridsearch.ipynb) | `GridSearchCV` для SVM, дерева и случайного леса; ручной перебор с `ParameterGrid`, `cross_val_score` и прогрессом через `tqdm`. |
+| Метрики | [02_metrics.ipynb](src/ex02/02_metrics.ipynb) | Accuracy, weighted precision и recall, weighted ROC AUC по схеме One-vs-One. Общая функция оценки моделей и анализ ошибок по группам. |
+| Ансамбли | [03_ensembles.ipynb](src/ex03/03_ensembles.ipynb) | Подбор режима и весов Voting, параметров Bagging, числа разбиений и `passthrough` для Stacking. Выбор настроек на валидации. |
+| Pipeline и ООП | [04_pipelines.ipynb](src/ex04/04_pipelines.ipynb) | Собственные преобразователи, разбиение выборки, классы выбора и финализации модели. Полный запуск от исходного CSV до сохранённого классификатора. |
 
-## Chapter II
+## Результаты
 
-### Instructions
+### Отдельные модели — ex02
 
-How to learn at “School 21”:
+Обучение на **1 348 объектах**, тест — **338 объектов**. Разбиение стратифицированное, `random_state=21`; параметры взяты из `ex01`.
 
-- Here, you’ll find a unique learning experience with a lot of freedom. You’re given a task and left to find your own way to solve it, using whatever resources work best for you — whether that’s the Internet or AI tools like GigaChat. Just be mindful of information quality: verify, think critically, analyze, and compare.
-- Peer-to-peer (P2P) learning is the exchange of knowledge and experience with peers, where everyone acts as both mentor and student. This approach allows you to gain a deeper understanding of the material by learning from one another.
-- Feel free to ask for help: around you are peers who are also navigating this path for the first time. Share your own experience and ideas with others.  Join Rocket.Chat to stay updated with the latest community announcements. 
-- Your learning is meaningless if you just copy someone else’s solutions. When receiving help from others, always make sure you fully understand the “why”, “how”, and “purpose” behind the solution. Don’t be afraid to make mistakes. 
-- Does the task seem impossible? Take a break, get some fresh air and clear your mind — this has helped many people. Maybe after that, the solution will come to you naturally.
-- The learning process is just as important as the result. It’s not just about completing the task — it’s about understanding HOW to solve it. 
+| Модель | Test accuracy | Weighted precision | Weighted recall | Weighted ROC AUC, OVO |
+|---|---:|---:|---:|---:|
+| SVM, RBF | 0.88757 | 0.89267 | 0.88757 | 0.97878 |
+| Decision Tree | 0.89941 | 0.90098 | 0.89941 | 0.93954 |
+| **Random Forest** | **0.93195** | **0.93387** | **0.93195** | **0.98975** |
 
-How to work with the project:
+Лучший результат в этом эксперименте — случайный лес: `n_estimators=100`, `max_depth=32`, `criterion="entropy"`.
 
-* Use this page as your only reference. Do not pay attention to rumors or speculation about how to prepare your solution.
-* Here and throughout, we use Python 3 as the only correct version of Python.
-* The python files for python exercises (module01, module02, module03) must have the following block at the end: `if __name__ == ‘__main__’`.
-* Pay attention to the permissions of your files and directories.
-* To be assessed your solution must be in your GIT repository.
-* Your solutions will be evaluated by your peers in the bootcamp.
-* You should not leave any other files in your directory other than those explicitly specified in the exercise instructions. It is recommended that you modify your .gitignore to avoid any accidents.
-* Your solution must be in your GIT repository for evaluation. Always push only to the develop branch! The master branch will be ignored. Work in the src directory.
-* When you need to get precise output in your programs, it is forbidden to display a precalculated output instead of performing the exercise correctly.
-* Have a question? Ask your neighbor on the right. If that fails, try your neighbor on the left.
-* Your reference materials are your peers, the internet, and Google.
-* Read the examples carefully. They may require information that is not specified elsewhere in the subject.
-* May the Force be with you!
+### Ансамбли — ex03
 
-## Chapter III
+Здесь выделена отдельная валидация: **1 078 объектов для обучения, 270 для валидации и 338 для теста**. Настройки выбираются по валидационной accuracy, при равенстве — по precision.
 
-### Specific instructions for the day
+![Сравнение accuracy в ex03: все модели на валидации и выбранные ансамбли на тесте](misc/images/model-comparison.svg)
 
-* Use the Jupyter notebook to work with your code.
-* For each major subtask in the list of exercises, your ipynb file should have an H2 heading to help your peers easily navigate your code.
-* No imports are allowed except those mentioned in the "Authorized Functions" section of the title block of each exercise.
-* You can use any built-in function as long as it is not prohibited by the exercise.
-* Save and load all required data in the `data/` subfolder.
-* `scikit-learn` (0.23.1) is the library that you need for all the machine learning tasks.
-* `tqdm` (4.46.1) is the library that you need for tracking progress.
+Лучший ансамбль — **Stacking** с `n_splits=3` и `passthrough=True`. Базовые модели — SVM, дерево и случайный лес; итоговая модель — логистическая регрессия с `liblinear` в обёртке `OneVsRestClassifier`.
 
-## Chapter IV
+Его accuracy на валидации — **0.91481**. На тесте: **accuracy 0.91124, precision 0.91306, recall 0.91124**.
 
-### Exercise 00: Regularization
+В `ex02` и `ex03` разный объём обучающих данных, поэтому эти результаты представлены как отдельные эксперименты. Оценка выполнена на случайном стратифицированном разбиении учебного датасета.
 
-- Turn-in directory: `ex00/`.
-- Files to turn in: `regularization.ipynb`.
-- Allowed functions: no restrictions.
+### Итоговый workflow — ex04
 
-In the previous day, you tried solving different types of machine learning problems using various algorithms, which helped you grasp the fundamentals. Today, you will try more advanced techniques.
+`FeatureExtractor` извлекает временные признаки, `MyOneHotEncoder` кодирует категории, `TrainValidationTest` создаёт выборки. `ModelSelection` подбирает параметры с двухчастной кросс-валидацией и выбирает алгоритм по валидации. `Finalize` обучает выбранную модель, оценивает её на тесте и сохраняет через `joblib`.
 
-Let's start with regularization. In its broadest sense, regularization is a technique that prevents a model from overfitting. Regarding logistic regression, we have a formula with different Xs (features) and coefficients. Regularization penalizes coefficients that are too large, making the formula more robust and better able to handle unknown data in the future. L1 regularization sets some coefficients to zero. Thus, this method may be helpful for feature selection when there are many features and the number needs to be reduced. L2 regularization does not set the weights to zero, but it may reduce their magnitude. We cannot say, "Use only L2 or L1 regularization". In machine learning, there are few silver bullets. Usually, you need to try many different approaches with your dataset to find the best fit.
+Выбран **Random Forest: 50 деревьев, глубина 22, критерий Gini**. Accuracy на валидации — **0.90370**, на тесте — **0.91124**.
 
-Regarding trees and forests, regularization is connected to the parameters that affect the number of cases in the leaves. If your tree is so dense that each leaf contains only one sample, chances are your tree has overfitted the training dataset.
+Сохранённая модель: [RandomForestClassifier_0.91124.sav](src/data/RandomForestClassifier_0.91124.sav). Она принимает подготовленную матрицу признаков; преобразование исходных данных находится в блокноте.
 
-To prevent that, you can adjust parameters such as `max_depth`, `min_samples_split`, `min_samples_leaf`, and `max_leaf_nodes`.
+## Анализ ошибок
 
-Many algorithms have different regularization parameters. Our goal is not to cover them all. You just need to know that they exist in case you need them and want to understand how they work for a specific algorithm.
+Для лучшего Stacking из `ex03` ошибки разобраны по дням недели, пользователям и лабораторным работам. По условию эксперимента процент рассчитан как **число ошибок на тесте в группе / число объектов этой группы во всём датасете × 100%**.
 
-In this exercise, you will experiment with some of these parameters. The dataset and task will remain the same: predict the weekday for each commit using the following data: uid, lab name, number of trials, and the hour of the commit.
+Наибольшие значения: понедельник — **6.62%**, `user_6` — **16.67%**, `lab03` и `lab03s` — **100%**. В каждой из двух последних групп всего по одному объекту, поэтому размер группы важен для интерпретации результата.
 
-What you need to do is fully described in the [notebook](https://drive.google.com/file/d/1-bx3kLOrZhe6eGRUj6187SVCglHUyqW5/view).
+## Запуск
 
-## Chapter V
+Проверенное окружение — **Python 3.14.7**. Версии библиотек зафиксированы в [requirements.txt](requirements.txt).
 
-### Exercise 01: Gridsearch
-
-- Turn-in directory: `ex01/`.
-- Files to turn in: `gridsearch.ipynb`.
-- Allowed functions: no restrictions.
-
-We're sure you're tired of manually iterating through the different parameters of various models. You probably think there should be a way to automate the process. Yes, there is: GridSearch.
-
-Specify the range of values for the parameters you want to optimize, then put them into GridSearchCV. GridSearchCV will try all of them, calculate the metrics on cross-validation, and provide the best combination of parameters, as well as the overall results of its mini-research. Cool, right?
-
-What you need to do describe in the [notebook](https://drive.google.com/file/d/1qH7LmNIrzkH3ViC1aPfnHT5rVKBcEFrQ/view).
-
-## Chapter VI
-
-### Exercise 02: Metrics
-
-- Turn-in directory: `ex02/`.
-- Files to turn in: `metrics.ipynb`.
-- Allowed functions: no restrictions.
-
-Is 90% accuracy a good result? It's actually not easy to say. Imagine two unbalanced classes: 95% of the samples belong to the first class, and 5% belong to the second. Accuracy will be worse than with a naive classifier when making predictions using the most popular class. This is not a fantasy. This situation is common in anti-fraud tasks, for example. The number of fraud cases is significantly lower than the number of normal cases. Is this a bad metric? It is simple to understand, and you can use it to compare different models within a task. However, this metric can be misleading when comparing results to a model from another task. Additionally, it does not provide much information about errors. You only know how many there are. But what kind?
-
-Some other metrics can answer this question. They all come from the [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix). The first is precision. It is the number of correctly predicted samples of one class divided by the total number of predictions of that class. For example, imagine that we predicted 10 days as weekends, but only seven of them actually were. The precision would be 0.7.
-
-The second is recall. It is the number of correctly predicted samples of one class divided by the true number of that class. Again, imagine that we predicted 10 days as weekends, but only 7 of them were actually weekends. In the dataset, there were 20 weekends. The recall would be 0.35 (7/20).
-
-Precision is useful when we want to show an ad with 16+ content. We want to make precise predictions. Recall can be useful for identifying terrorists. We want to find all of them, no matter how many civilians experience inconvenience along the way. There is also a metric that combines both: the harmonic mean F1 score. Use it when you need to optimize both.
-
-Also, there is the [ROC-curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic). When making predictions, you typically use probabilities. The final classification is made by comparing them to the threshold. For example, if the probability of it being a weekend on a given day is 0.2 and the threshold is 0.5, then it is not a weekend. 
-
-However, if the threshold were changed to 0.1, the same sample would be predicted as a weekend. Now, imagine that we calculate the recall for each threshold and the number of working days predicted as weekends divided by the actual number of working days. We can plot both of these values to get the ROC curve. The higher the curve, the better. However, comparing curves can be inconvenient. That is why we use another metric, the area under the curve (AUC). 
-
-Precision, recall, and AUC are useful for comparing the performance of different models from different tasks. They also tell us something about errors. Everything we discussed here was related to binary classification. However, with some adjustments, it can be used for multiclass and multilabel classification. For example, you can read about it [here](https://towardsdatascience.com/multi-class-metrics-made-simple-part-i-precision-and-recall-9250280bddc2), for example.
-
-What you need to do is fully described in the [notebook](https://drive.google.com/file/d/18FA62WxDMYUhhk1dWqb8dhcG3kDw6Xf1/view).
-
-## Chapter VII
-
-### Exercise 03: Ensembles
-
-- Turn-in directory: `ex03/`.
-- Files to turn in: `ensembles.ipynb`.
-- Allowed functions: no restrictions.
-
-As you know, a random forest is an ensemble of many different trees. However, you can actually create an ensemble from any type of model. In this exercise, you will try three approaches: a voting classifier, a bagging classifier, and a stacking classifier. Who knows? Maybe it will help you improve the quality of your predictions.
-
-What you need to do is fully described in the [notebook](https://drive.google.com/file/d/1z_DTgLXCNw_uTTjkWMzzFFVJc03xSSc2/view).
-
-## Chapter VIII
-
-### Exercise 04: Pipelines and OOP
-
-- Turn-in directory: `ex04/`.
-- Files to turn in: pipelines.ipynb.
-- Allowed functions: no restrictions.
-
-While trying to solve the problem, you performed many different actions: you prepared the data, tried different models and metrics, optimized their hyperparameters, and tried different kinds of ensembles. Your code is probably scattered across different notebooks, requiring a lot of scrolling, and it probably looks chaotic. 
-
-In this final exercise of the day, you will clean up your code and make it more organized. Why is this important? In real life, you may want to share it with your colleagues or include it in your portfolio, or you may want it for your own future convenience. If you return to that code several months from now, you may think, "Who made that mess?"
-
-In this exercise, you will apply the object-oriented programming (OOP) approach to data analysis. The first part of your notebook will contain only imports, classes, and methods. The second part will be your "main program". You will work with the initial data and go through most of the previous steps.
-
-What you need to do is fully described in the [notebook](https://disk.360.yandex.ru/d/jXE4MK0G5C5PKQ).
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
